@@ -9,16 +9,31 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U jmc -d jmc"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
     build: ./backend
     environment:
       DATABASE_URL: postgresql+psycopg://jmc:jmc@db:5432/jmc
-      JWT_SECRET: change-this-secret
+      JWT_SECRET: change-this-secret-for-development
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: admin12345
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
 
 volumes:
   postgres_data:
