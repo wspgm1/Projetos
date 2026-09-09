@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: jmc
+      POSTGRES_USER: jmc
+      POSTGRES_PASSWORD: jmc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://jmc:jmc@db:5432/jmc
+      JWT_SECRET: change-this-secret
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
